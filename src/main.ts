@@ -86,6 +86,9 @@ const {configProxy} = createChart(initialChart(), {
 	rootElement: document.querySelector<HTMLElement>('#foo')!
 });
 
+// @ts-ignore
+window.configProxy = configProxy;
+
 // element.addEventListener('update', (event) => {
 // 	console.log(event);
 // });

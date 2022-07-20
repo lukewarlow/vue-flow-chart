@@ -1,6 +1,7 @@
 <template>
 	<draggable
 		@move="move"
+		@moveend="moveEnd"
 		@click="click"
 		ref="nodeRef"
 		class="node"
@@ -23,12 +24,13 @@
 </template>
 
 <script lang="ts">
-	import {defineComponent, onUnmounted, PropType, ref} from 'vue';
+	import {defineComponent, onUnmounted, PropType, ref, watch} from 'vue';
 	import useGlobalState from '../state/global-state';
 	import {getPortCoords} from '../utils/coordinates';
 	import Draggable from './Draggable.vue';
 	import {ChartNode, Port} from '../types';
 	import DefaultPort from './DefaultPort.vue';
+	import {data} from 'autoprefixer';
 
 	export default defineComponent({
 		name: 'DraggableNode',
@@ -48,11 +50,9 @@
 			const nodeRef = ref<HTMLElement>();
 
 			function move(data: any) {
-				// TODO this wont be e.detail soon
-				// const x = data.x;
-				// const y = data.y;
-
-				// ctx.emit('move', {x, y});
+				const node = chart.value.nodes.find((n) => n.uuid === props.node.uuid)!;
+				node.x = data.x;
+				node.y = data.y;
 
 				const outgoingLinks = chart.value.links.filter((link) => link.startNodeUuid === props.node.uuid);
 				outgoingLinks.forEach((link) => {
@@ -66,7 +66,6 @@
 				const incomingLinks = chart.value.links.filter((link) => link.endNodeUuid === props.node.uuid);
 				incomingLinks.forEach((link) => {
 					const portRef = document.querySelector<HTMLElement>(`#port-${link.endPortUuid}`)!;
-
 					const { portX, portY } = getPortCoords(canvas.value!, portRef, chart.value.scale);
 
 					link.endX = portX;
@@ -74,33 +73,55 @@
 				});
 			}
 
+			function moveEnd(data: any) {
+				ctx.emit('moveend', data);
+			}
+
 			function click(event: PointerEvent) {
 				if (!selectedNode.value) {
 					event.stopPropagation();
 					selectedNode.value = props.node;
-					// props.node.x += 10;
-					// TODO improve this to use addEventListener
-					window.onkeydown = (e) => {
-						if (e.key === 'Delete' || e.key === 'Backspace') {
-							e.preventDefault();
-							e.stopPropagation();
-							const index = chart.value.nodes.findIndex((l) => l.uuid === selectedNode.value!.uuid);
-							chart.value.nodes.splice(index, 1);
-							selectedNode.value = null;
-						}
-					}
+					window.addEventListener('keydown', keyDownHandler);
+				}
+			}
+
+			watch(selectedNode, (newValue) => {
+				if (newValue === null) {
+					window.removeEventListener('keydown', keyDownHandler);
+				}
+			});
+
+			function keyDownHandler(event: KeyboardEvent) {
+				if (event.key === 'Delete' || event.key === 'Backspace') {
+					event.preventDefault();
+					event.stopPropagation();
+					const index = chart.value.nodes.findIndex((n) => n.uuid === selectedNode.value!.uuid);
+					chart.value.nodes.splice(index, 1);
+					selectedNode.value = null;
+
+					const outgoingLinks = chart.value.links.filter((link) => link.startNodeUuid === props.node.uuid);
+					outgoingLinks.forEach((link) => {
+						const index = chart.value.links.findIndex((l) => l.uuid === link.uuid);
+						chart.value.links.splice(index, 1);
+					});
+
+					const incomingLinks = chart.value.links.filter((link) => link.endNodeUuid === props.node.uuid);
+					incomingLinks.forEach((link) => {
+						const index = chart.value.links.findIndex((l) => l.uuid === link.uuid);
+						chart.value.links.splice(index, 1);
+					});
 				}
 			}
 
 			onUnmounted(() => {
-				// TODO improve this to use removeEventListener
-				window.onkeydown = null;
+				window.removeEventListener('keydown', keyDownHandler);
 			});
 
 			return {
 				nodeRef,
 				selectedNode,
 				move,
+				moveEnd,
 				click,
 			}
 		}

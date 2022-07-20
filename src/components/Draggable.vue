@@ -61,8 +61,6 @@
 
 				selectedLink.value = null;
 				selectedNode.value = null;
-				// TODO improve this to use addEventListener
-				window.onkeydown = null;
 
 				if (draggable.value) {
 					draggable.value.setPointerCapture(event.pointerId);
@@ -77,7 +75,7 @@
 				event.stopPropagation();
 				if (draggable.value) {
 					draggable.value.releasePointerCapture(event.pointerId);
-
+					ctx.emit('moveend', {x: pointer.x, y: pointer.y});
 					trackPointer.value = false;
 				}
 			}

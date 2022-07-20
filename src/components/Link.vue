@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts">
-	import {computed, defineComponent, onUnmounted, PropType, reactive, ref} from 'vue';
+	import {computed, defineComponent, onUnmounted, PropType, reactive, ref, watch} from 'vue';
 	import useGlobalState from '../state/global-state';
 	import {getPointerCoords, getPortCoords} from '../utils/coordinates';
 	import {createCurvature} from '../utils/svg';
@@ -58,21 +58,28 @@
 					event.stopPropagation();
 					selectedLink.value = props.link;
 					// TODO improve this to use addEventListener
-					window.onkeydown = (e) => {
-						if (e.key === 'Delete' || e.key === 'Backspace') {
-							e.preventDefault();
-							e.stopPropagation();
-							const linkIndex = chart.value.links.findIndex((l) => l.uuid === selectedLink.value!.uuid);
-							chart.value.links.splice(linkIndex, 1);
-							selectedLink.value = null;
-						}
-					}
+					window.addEventListener('keydown', keyDownHandler);
+				}
+			}
+
+			watch(selectedLink, (newValue) => {
+				if (newValue === null) {
+					window.removeEventListener('keydown', keyDownHandler);
+				}
+			});
+
+			function keyDownHandler(event: KeyboardEvent) {
+				if (event.key === 'Delete' || event.key === 'Backspace') {
+					event.preventDefault();
+					event.stopPropagation();
+					const linkIndex = chart.value.links.findIndex((l) => l.uuid === selectedLink.value!.uuid);
+					chart.value.links.splice(linkIndex, 1);
+					selectedLink.value = null;
 				}
 			}
 
 			onUnmounted(() => {
-				// TODO improve this to use removeEventListener
-				window.onkeydown = null;
+				window.removeEventListener('keydown', keyDownHandler);
 			});
 
 			return {

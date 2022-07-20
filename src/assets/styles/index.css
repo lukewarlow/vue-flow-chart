@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.connection {
+	z-index: 10;
+	position: absolute;
+	overflow: visible !important;
+	pointer-events: none;
+	touch-action: none;
+	aspect-ratio: 1 / 1;
+}
+.connection.in-progress {
+	z-index: -10;
+	touch-action: auto;
+}
+.connection .main-path {
+	fill: none;
+	stroke-width: 5px;
+	stroke: steelblue;
+	pointer-events: visiblePainted;
+}
+.connection.selected .main-path {
+	stroke: red;
+}
+.connection .selected-path {
+	fill: none;
+	stroke-width: 20px;
+	stroke-opacity: 0.1;
+	stroke-linecap: round;
+	stroke: red;
+	pointer-events: visiblePainted;
+}
+.connection .main-path:hover {
+	cursor: pointer;
+	stroke: #1266ab;
+}
+.connection.selected .main-path:hover {
+	stroke: #ab1212;
+}
+.connection .selected-path:hover {
+	cursor: pointer;
+	stroke: #1266ab;
+}
+.connection.selected .selected-path:hover {
+	stroke: #ab1212;
+}
+
+.node {
+	@apply fixed w-fit bg-white border-2 border-gray-300 dark:border-gray-500 dark:bg-gray-700 dark:text-white rounded-md tracking-wide shadow-lg;
+}
+.node.selected {
+	@apply border-blue-500;
+}

@@ -10,6 +10,7 @@
 		<draggable
 			@wheel="wheel"
 			@move="move"
+			@moveend="moveEnd"
 			:boundToCanvas="false"
 			:x="chart.x"
 			:y="chart.y"
@@ -30,13 +31,14 @@
 </template>
 
 <script lang="ts">
-	import {defineComponent, onMounted, ref, watch} from 'vue';
+	import {defineComponent, onMounted, onUnmounted, watch} from 'vue';
 	import useGlobalState from '../state/global-state';
 	import {getTransformedCoords} from '../utils/coordinates';
 	import Draggable from './Draggable.vue';
 	import DraggableNode from './DraggableNode.vue';
 	import {ChartNode, HTMLEvent} from '../types';
 	import DefaultLink from './Link.vue';
+	import {useChartHistory} from '../composables/use-chart-history';
 
 	export default defineComponent({
 		name: 'DraggableCanvas',
@@ -47,6 +49,7 @@
 		},
 		setup(props, ctx) {
 			const { chart, canvasRef, canvas, scrollHandlers, inProgressLink } = useGlobalState();
+			const { addToHistory, undoHistory, redoHistory } = useChartHistory();
 
 			function zoom(amount: number) {
 				if (canvas.value) {
@@ -55,6 +58,7 @@
 					if (newScale > 0.3) {
 						// TODO re-enable once the issues have been fixed
 						// chart.value.scale = newScale;
+						// addToHistory();
 					}
 				}
 			}
@@ -93,13 +97,15 @@
 				chart.value.y = data.y;
 			}
 
+			function moveEnd() {
+				addToHistory();
+			}
+
 			function drop(e: DragEvent) {
 				if (canvasRef.value) {
-					console.log(e);
-
 					const newNodePartial = JSON.parse(e.dataTransfer!.getData("application/json"));
 
-					const {transformedX, transformedY} = getTransformedCoords(canvas.value, e.clientX, e.clientY, chart.value.scale);
+					const {transformedX, transformedY} = getTransformedCoords(canvas.value!, e.clientX, e.clientY, chart.value.scale);
 
 					const newNode: ChartNode = {
 						x: transformedX,
@@ -108,6 +114,22 @@
 					}
 
 					chart.value.nodes.push(newNode);
+					addToHistory();
+				}
+			}
+
+			function historyKeydownHandler(event: KeyboardEvent) {
+				const isCmdCtrl = (event.ctrlKey || event.metaKey);
+
+				if (isCmdCtrl && (event.key === 'y' || (event.shiftKey && event.key === 'z'))) {
+					event.preventDefault();
+					redoHistory();
+					return;
+				}
+				if (isCmdCtrl && event.key === 'z') {
+					event.preventDefault();
+					undoHistory();
+					return;
 				}
 			}
 
@@ -121,6 +143,11 @@
 
 			onMounted(() => {
 				setScale(chart.value.scale);
+				window.addEventListener('keydown', historyKeydownHandler);
+			});
+
+			onUnmounted(() => {
+				window.removeEventListener('keydown', historyKeydownHandler);
 			});
 
 			return {
@@ -129,6 +156,7 @@
 				canvasRef,
 				canvas,
 				move,
+				moveEnd,
 				scroll,
 				drop,
 				wheel,

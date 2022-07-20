@@ -5,6 +5,7 @@
 		@pointerdown="pointerDown"
 		@pointerup="pointerUp"
 		@pointermove="pointerMove"
+		@click.stop.prevent
 		class="top-0 left-0 touch-none cursor-move transform"
 	>
 		<slot></slot>
@@ -12,7 +13,7 @@
 </template>
 
 <script lang="ts">
-	import {defineComponent, nextTick, onMounted, onUnmounted, reactive, ref} from 'vue';
+	import {defineComponent, nextTick, onMounted, onUnmounted, reactive, ref, watch} from 'vue';
 	import useGlobalState from '../state/global-state';
 
 	export default defineComponent({
@@ -73,7 +74,7 @@
 
 			function pointerUp(event: PointerEvent) {
 				event.stopPropagation();
-				if (draggable.value) {
+				if (draggable.value && trackPointer.value) {
 					draggable.value.releasePointerCapture(event.pointerId);
 					ctx.emit('moveend', {x: pointer.x, y: pointer.y});
 					trackPointer.value = false;
@@ -109,7 +110,7 @@
 						const xChange = pointerX - pointerElXDif - startX;
 						const yChange = pointerY - pointerElYDif - startY;
 
-						setPos(draggable.value, xChange, yChange);
+						changePos(draggable.value, xChange, yChange);
 
 						pointer.x = pointerX;
 						pointer.y = pointerY;
@@ -121,11 +122,9 @@
 				ctx.emit('move', {x: xPos, y: yPos});
 			}
 
-			function setPos(el: HTMLElement, xChange: number, yChange: number) {
-				const translateX = el.style.getPropertyValue('--tw-translate-x').replace('px', '') || 0;
-				let xPos = +translateX + xChange;
-				const translateY = el.style.getPropertyValue('--tw-translate-y').replace('px', '') || 0;
-				let yPos = +translateY + yChange;
+			function setPos(el: HTMLElement, x: number, y: number) {
+				let xPos = x;
+				let yPos = y;
 
 				if (props.boundToCanvas) {
 					// TODO account for zoom
@@ -153,12 +152,29 @@
 
 				el.style.setProperty('--tw-translate-x', `${xPos}px`, 'important');
 				el.style.setProperty('--tw-translate-y', `${yPos}px`, 'important');
+			}
+
+			function changePos(el: HTMLElement, xChange: number, yChange: number) {
+				const translateX = el.style.getPropertyValue('--tw-translate-x').replace('px', '') || 0;
+				let xPos = +translateX + xChange;
+				const translateY = el.style.getPropertyValue('--tw-translate-y').replace('px', '') || 0;
+				let yPos = +translateY + yChange;
+
+				setPos(el, xPos, yPos);
 				emitMove(position.x, position.y);
 			}
 
+			watch(() => props.x, () => {
+				setPos(draggable.value!, props.x, props.y);
+			});
+
+			watch(() => props.y, () => {
+				setPos(draggable.value!, props.x, props.y);
+			});
+
 			onMounted(() => {
 				nextTick(() => {
-					setPos(draggable.value!, props.x, props.y);
+					changePos(draggable.value!, props.x, props.y);
 
 					scrollHandlers.set(id, (event) => {
 						// TODO throttle this with requestAnimationFrame
@@ -168,7 +184,7 @@
 							const xChange = event.target.scrollLeft - scrollLeft.value;
 							scrollTop.value = event.target.scrollTop;
 							scrollLeft.value = event.target.scrollLeft;
-							setPos(draggable.value, xChange, yChange);
+							changePos(draggable.value, xChange, yChange);
 						}
 					})
 				})

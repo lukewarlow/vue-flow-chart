@@ -16,6 +16,7 @@
 	import {getPointerCoords, getPortCoords} from '../utils/coordinates';
 	import {createCurvature} from '../utils/svg';
 	import {Link} from '../types';
+	import {useChartHistory} from '../composables/use-chart-history';
 
 	export default defineComponent({
 		name: 'DefaultLink',
@@ -30,7 +31,8 @@
 			}
 		},
 		setup(props) {
-			const { canvas, chart, selectedLink } = useGlobalState();
+			const { canvas, chart, selectedLink, selectedNode } = useGlobalState();
+			const { addToHistory } = useChartHistory();
 
 			const curvature = computed(() => {
 				if (!props.link.startX) {
@@ -57,6 +59,7 @@
 				if (!selectedLink.value && !props.inProgress) {
 					event.stopPropagation();
 					selectedLink.value = props.link;
+					selectedNode.value = null;
 					// TODO improve this to use addEventListener
 					window.addEventListener('keydown', keyDownHandler);
 				}
@@ -75,6 +78,7 @@
 					const linkIndex = chart.value.links.findIndex((l) => l.uuid === selectedLink.value!.uuid);
 					chart.value.links.splice(linkIndex, 1);
 					selectedLink.value = null;
+					addToHistory();
 				}
 			}
 

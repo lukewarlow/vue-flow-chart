@@ -19,6 +19,7 @@
 	import useGlobalState from '../state/global-state';
 	import {getPointerCoords, getPortCoords} from '../utils/coordinates';
 	import {Port} from '../types';
+	import {useChartHistory} from '../composables/use-chart-history';
 
 	export default defineComponent({
 		name: 'DefaultPort',
@@ -42,6 +43,7 @@
 		},
 		setup(props, ctx) {
 			const { chart, canvas, inProgressLink } = useGlobalState();
+			const { addToHistory } = useChartHistory();
 
 			const portRef = ref<HTMLDivElement>();
 
@@ -66,6 +68,7 @@
 						});
 
 						inProgressLink.value = null;
+						addToHistory();
 
 						if (timeoutId) {
 							clearTimeout(timeoutId);

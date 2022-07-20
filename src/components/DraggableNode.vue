@@ -24,13 +24,14 @@
 </template>
 
 <script lang="ts">
-	import {defineComponent, onUnmounted, PropType, ref, watch} from 'vue';
+	import {defineComponent, onMounted, onUnmounted, PropType, ref, watch} from 'vue';
 	import useGlobalState from '../state/global-state';
 	import {getPortCoords} from '../utils/coordinates';
 	import Draggable from './Draggable.vue';
 	import {ChartNode, Port} from '../types';
 	import DefaultPort from './DefaultPort.vue';
 	import {data} from 'autoprefixer';
+	import {useChartHistory} from '../composables/use-chart-history';
 
 	export default defineComponent({
 		name: 'DraggableNode',
@@ -45,7 +46,8 @@
 			},
 		},
 		setup(props, ctx) {
-			const { chart, canvas, selectedNode } = useGlobalState();
+			const { chart, canvas, selectedNode, selectedLink } = useGlobalState();
+			const { addToHistory } = useChartHistory();
 
 			const nodeRef = ref<HTMLElement>();
 
@@ -73,14 +75,15 @@
 				});
 			}
 
-			function moveEnd(data: any) {
-				ctx.emit('moveend', data);
+			function moveEnd() {
+				addToHistory();
 			}
 
 			function click(event: PointerEvent) {
 				if (!selectedNode.value) {
 					event.stopPropagation();
 					selectedNode.value = props.node;
+					selectedLink.value = null;
 					window.addEventListener('keydown', keyDownHandler);
 				}
 			}
@@ -110,6 +113,7 @@
 						const index = chart.value.links.findIndex((l) => l.uuid === link.uuid);
 						chart.value.links.splice(index, 1);
 					});
+					addToHistory();
 				}
 			}
 

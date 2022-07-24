@@ -10,6 +10,7 @@ function initialChart(): Chart {
 				{
 					uuid: crypto.randomUUID(),
 					type: 'output',
+					position: 'bottom',
 				},
 			],
 			position: {
@@ -27,14 +28,17 @@ function initialChart(): Chart {
 				{
 					uuid: crypto.randomUUID(),
 					type: 'both',
+					position: 'top',
 				},
 				{
 					uuid: crypto.randomUUID(),
 					type: 'input',
+					position: 'top',
 				},
 				{
 					uuid: crypto.randomUUID(),
 					type: 'output',
+					position: 'top',
 				},
 			],
 			position: {
@@ -51,6 +55,7 @@ function initialChart(): Chart {
 				{
 					uuid: crypto.randomUUID(),
 					type: 'both',
+					position: 'top',
 				},
 			],
 			position: {
@@ -70,10 +75,12 @@ function initialChart(): Chart {
 				{
 					uuid: crypto.randomUUID(),
 					type: 'input',
+					position: 'top',
 				},
 				{
 					uuid: crypto.randomUUID(),
 					type: 'output',
+					position: 'top',
 				},
 			],
 			position: {

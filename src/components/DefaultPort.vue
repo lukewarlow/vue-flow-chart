@@ -7,7 +7,7 @@
 		@pointermove="pointerMove"
 		@pointerover="pointerOver"
 		@click.stop
-		class="cursor-pointer -m-3 border-4 border-gray-300 ${colourClasses.value} w-6 h-6 rounded-2xl touch-none"
+		class="cursor-pointer -m-3 border-4 border-gray-300 w-6 h-6 rounded-2xl touch-none"
 		:class="colourClasses"
 	>
 		<slot></slot>

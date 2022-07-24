@@ -11,7 +11,7 @@
 		:readonly="node.readonly"
 	>
 		<div class="flex justify-around">
-			<template v-for="port in node.ports" :key="port.uuid">
+			<template v-for="port in node.ports.filter(p => p.position === 'top')" :key="port.uuid">
 				<default-port
 					:node-uuid="node.uuid"
 					:port="port"
@@ -21,6 +21,16 @@
 			</template>
 		</div>
 		<div style="padding: 1.5rem; white-space: pre-line">{{node.rendering.text ?? node.rendering.dynamicText(node)}}</div>
+		<div class="flex justify-around">
+			<template v-for="port in node.ports.filter(p => p.position === 'bottom')" :key="port.uuid">
+				<default-port
+					:node-uuid="node.uuid"
+					:port="port"
+					:node-x="node.position.x"
+					:node-y="node.position.x"
+				/>
+			</template>
+		</div>
 	</draggable>
 </template>
 

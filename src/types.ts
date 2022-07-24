@@ -32,6 +32,7 @@ export interface ChartNode {
 export interface Port {
 	uuid: string;
 	type: 'input' | 'output' | 'both';
+	position: 'top' | 'bottom';
 }
 
 export interface Link {

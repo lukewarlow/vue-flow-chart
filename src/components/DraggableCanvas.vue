@@ -137,8 +137,6 @@
 				if (canvas.value) {
 					setScale(newValue.scale);
 				}
-				// TODO potentially throttle this
-				ctx.emit('update', {config: newValue});
 			}, {deep: true});
 
 			onMounted(() => {

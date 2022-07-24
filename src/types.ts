@@ -60,9 +60,6 @@ export interface InProgressLink {
 	startPortUuid: string;
 }
 
-
-
-// TODO move these
 export type TypedEvent<T> = Omit<Event, 'target'> & {
 	target: T;
 }

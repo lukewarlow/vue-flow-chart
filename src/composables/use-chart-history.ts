@@ -19,8 +19,8 @@ export function useChartHistory() {
     const {chart} = useGlobalState();
 
     function addToHistory() {
-        const newVal = structuredClone(toRaw(chart.value));
-        if (equal(history.value.entries.at(-1), newVal)) {
+        const newValue = structuredClone(toRaw(chart.value));
+        if (equal(history.value.entries.at(-1), newValue)) {
             return;
         }
 
@@ -37,7 +37,14 @@ export function useChartHistory() {
         }
 
         history.value.currentIndex = newIndex;
-        history.value.entries.push(newVal);
+        history.value.entries.push(newValue);
+
+        window.dispatchEvent(new CustomEvent('chart:updated', {
+            cancelable: false,
+            detail: {
+                chart: structuredClone(toRaw(newValue))
+            }
+        }));
     }
 
     const canUndo = computed(() => history.value.currentIndex > 0);
@@ -52,6 +59,13 @@ export function useChartHistory() {
         const newValue = history.value.entries[newIndex];
         chart.value = structuredClone(toRaw(newValue));
         history.value.currentIndex = newIndex;
+
+        window.dispatchEvent(new CustomEvent('chart:updated', {
+            cancelable: false,
+            detail: {
+                chart: structuredClone(toRaw(newValue))
+            }
+        }));
     }
 
     function redoHistory() {
@@ -62,6 +76,12 @@ export function useChartHistory() {
         const newValue = history.value.entries[history.value.currentIndex + 1];
         chart.value = structuredClone(toRaw(newValue));
         history.value.currentIndex += 1;
+        window.dispatchEvent(new CustomEvent('chart:updated', {
+            cancelable: false,
+            detail: {
+                chart: structuredClone(toRaw(newValue))
+            }
+        }));
     }
 
     return {

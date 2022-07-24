@@ -60,7 +60,6 @@
 					event.stopPropagation();
 					selectedLink.value = props.link;
 					selectedNode.value = null;
-					// TODO improve this to use addEventListener
 					window.addEventListener('keydown', keyDownHandler);
 				}
 			}

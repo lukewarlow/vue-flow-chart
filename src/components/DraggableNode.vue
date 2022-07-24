@@ -24,7 +24,7 @@
 </template>
 
 <script lang="ts">
-	import {defineComponent, onMounted, onUnmounted, PropType, ref, watch} from 'vue';
+	import {defineComponent, onMounted, onUnmounted, PropType, ref, toRaw, watch} from 'vue';
 	import useGlobalState from '../state/global-state';
 	import {getPortCoords} from '../utils/coordinates';
 	import Draggable from './Draggable.vue';
@@ -85,6 +85,12 @@
 					selectedNode.value = props.node;
 					selectedLink.value = null;
 					window.addEventListener('keydown', keyDownHandler);
+					window.dispatchEvent(new CustomEvent('node:selected', {
+						cancelable: false,
+						detail: {
+							node: structuredClone(toRaw(props.node))
+						}
+					}));
 				}
 			}
 

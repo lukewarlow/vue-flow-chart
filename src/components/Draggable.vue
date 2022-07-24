@@ -34,7 +34,7 @@
 		},
 		setup(props, ctx) {
 			const id = crypto.randomUUID();
-			const { selectedNode, canvas, selectedLink, scrollHandlers} = useGlobalState();
+			const { selected, canvas, scrollHandlers} = useGlobalState();
 
 			const draggable = ref<HTMLDivElement>();
 
@@ -60,8 +60,7 @@
 				event.stopPropagation();
 				event.preventDefault();
 
-				selectedLink.value = null;
-				selectedNode.value = null;
+				selected.value = null;
 
 				if (draggable.value) {
 					draggable.value.setPointerCapture(event.pointerId);

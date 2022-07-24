@@ -65,3 +65,8 @@ export type TypedEvent<T> = Omit<Event, 'target'> & {
 }
 
 export type HTMLEvent = TypedEvent<HTMLElement>;
+
+export interface Selected {
+	type: "node" | "link";
+	data: Link | ChartNode;
+}

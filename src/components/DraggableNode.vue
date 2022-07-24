@@ -5,7 +5,7 @@
 		@click="click"
 		ref="nodeRef"
 		class="node"
-		:class="{'selected': node.uuid === selectedNode?.uuid}"
+		:class="{'selected': node.uuid === selected?.data?.uuid}"
 		:x="node.x"
 		:y="node.y"
 	>
@@ -46,7 +46,7 @@
 			},
 		},
 		setup(props, ctx) {
-			const { chart, canvas, selectedNode, selectedLink } = useGlobalState();
+			const { chart, canvas, selected } = useGlobalState();
 			const { addToHistory } = useChartHistory();
 
 			const nodeRef = ref<HTMLElement>();
@@ -80,10 +80,12 @@
 			}
 
 			function click(event: PointerEvent) {
-				if (!selectedNode.value) {
+				if (!selected.value) {
 					event.stopPropagation();
-					selectedNode.value = props.node;
-					selectedLink.value = null;
+					selected.value = {
+						type: "node",
+						data: props.node,
+					};
 					window.addEventListener('keydown', keyDownHandler);
 					window.dispatchEvent(new CustomEvent('node:selected', {
 						cancelable: false,
@@ -94,19 +96,19 @@
 				}
 			}
 
-			watch(selectedNode, (newValue) => {
+			watch(selected, (newValue) => {
 				if (newValue === null) {
 					window.removeEventListener('keydown', keyDownHandler);
 				}
 			});
 
 			function keyDownHandler(event: KeyboardEvent) {
-				if (event.key === 'Delete' || event.key === 'Backspace') {
+				if ((event.key === 'Delete' || event.key === 'Backspace') && selected.value?.type === "node") {
 					event.preventDefault();
 					event.stopPropagation();
-					const index = chart.value.nodes.findIndex((n) => n.uuid === selectedNode.value!.uuid);
+					const index = chart.value.nodes.findIndex((n) => n.uuid === selected.value!.data.uuid);
 					chart.value.nodes.splice(index, 1);
-					selectedNode.value = null;
+					selected.value = null;
 
 					const outgoingLinks = chart.value.links.filter((link) => link.startNodeUuid === props.node.uuid);
 					outgoingLinks.forEach((link) => {
@@ -129,7 +131,7 @@
 
 			return {
 				nodeRef,
-				selectedNode,
+				selected,
 				move,
 				moveEnd,
 				click,

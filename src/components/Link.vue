@@ -3,10 +3,10 @@
 		@pointerdown="pointerDown"
 		:id="`link-${link.uuid}`"
 		class="connection"
-		:class="{'in-progress': inProgress, 'selected': selectedLink?.uuid === link.uuid}"
+		:class="{'in-progress': inProgress, 'selected': selected?.data?.uuid === link.uuid}"
 	>
 		<path class="main-path" :d="curvature"></path>
-		<path v-if="selectedLink?.uuid === link.uuid" class="selected-path" :d="curvature"></path>
+		<path v-if="selected?.data?.uuid === link.uuid" class="selected-path" :d="curvature"></path>
 	</svg>
 </template>
 
@@ -31,7 +31,7 @@
 			}
 		},
 		setup(props) {
-			const { canvas, chart, selectedLink, selectedNode } = useGlobalState();
+			const { canvas, chart, selected } = useGlobalState();
 			const { addToHistory } = useChartHistory();
 
 			const curvature = computed(() => {
@@ -56,27 +56,29 @@
 					return;
 				}
 
-				if (!selectedLink.value && !props.inProgress) {
+				if (!selected.value && !props.inProgress) {
 					event.stopPropagation();
-					selectedLink.value = props.link;
-					selectedNode.value = null;
+					selected.value = {
+						type: "link",
+						data: props.link,
+					};
 					window.addEventListener('keydown', keyDownHandler);
 				}
 			}
 
-			watch(selectedLink, (newValue) => {
+			watch(selected, (newValue) => {
 				if (newValue === null) {
 					window.removeEventListener('keydown', keyDownHandler);
 				}
 			});
 
 			function keyDownHandler(event: KeyboardEvent) {
-				if (event.key === 'Delete' || event.key === 'Backspace') {
+				if ((event.key === 'Delete' || event.key === 'Backspace') && selected.value?.type === 'link') {
 					event.preventDefault();
 					event.stopPropagation();
-					const linkIndex = chart.value.links.findIndex((l) => l.uuid === selectedLink.value!.uuid);
+					const linkIndex = chart.value.links.findIndex((l) => l.uuid === selected.value!.data.uuid);
 					chart.value.links.splice(linkIndex, 1);
-					selectedLink.value = null;
+					selected.value = null;
 					addToHistory();
 				}
 			}
@@ -86,7 +88,7 @@
 			});
 
 			return {
-				selectedLink,
+				selected,
 				curvature,
 				pointerDown,
 			}

@@ -1,8 +1,7 @@
 import {computed, ref} from 'vue';
-import {Chart, ChartNode, HTMLEvent, InProgressLink, Link} from "../types";
+import {Chart, HTMLEvent, InProgressLink, Selected} from "../types";
 
-const selectedLink = ref<Link | null>(null);
-const selectedNode = ref<ChartNode | null>(null);
+const selected = ref<Selected | null>(null);
 const inProgressLink = ref<InProgressLink | null>(null);
 
 const canvasRef = ref<HTMLElement>();
@@ -24,8 +23,7 @@ export default function useGlobalState() {
 		inProgressLink,
 		canvasRef,
 		canvas,
-		selectedLink,
-		selectedNode,
+		selected,
 		chart,
 		scrollHandlers,
 	}

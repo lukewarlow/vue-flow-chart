@@ -31,6 +31,7 @@
 	stroke: red;
 	pointer-events: visiblePainted;
 }
+
 .connection .main-path:hover {
 	cursor: pointer;
 	stroke: #1266ab;
@@ -54,4 +55,21 @@
 }
 .node.selected {
 	@apply border-blue-500;
+}
+
+.chart {
+	--grid-color: #ccc;
+	background-size: 20px 20px;
+	background-image: repeating-linear-gradient(0deg, transparent, transparent 19px, var(--grid-color) 19px, var(--grid-color) 20px),
+	repeating-linear-gradient(-90deg, transparent, transparent 19px, var(--grid-color) 19px, var(--grid-color) 20px);
+}
+
+@media (prefers-color-scheme: dark) {
+	.chart {
+		--grid-color: #333;
+	}
+
+	.connection .selected-path {
+		stroke-opacity: 0.2;
+	}
 }

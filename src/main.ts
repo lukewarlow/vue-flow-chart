@@ -1,5 +1,6 @@
 import {Chart, ChartNode} from "./types";
 import {createChart} from "./index";
+import {watch} from 'vue';
 
 function initialChart(): Chart {
 	const nodes: ChartNode[] = [
@@ -148,3 +149,14 @@ document.querySelector<HTMLElement>('#random-node')!.ondragstart = (e) => {
 		},
 	}));
 }
+
+watch(() => configProxy.value.selected, (newValue, oldValue) => {
+	if (newValue && !oldValue) {
+		const newEl = document.createElement('p');
+		newEl.innerText = `${newValue.type} with UUID ${newValue.data.uuid} selected`;
+		newEl.id = 'selected-sidebar-item';
+		document.querySelector('#sidebar')!.appendChild(newEl);
+	} else if (!newValue && oldValue) {
+		document.querySelector('#selected-sidebar-item')?.remove();
+	}
+}, {deep: true})

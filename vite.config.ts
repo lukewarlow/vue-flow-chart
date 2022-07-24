@@ -6,7 +6,4 @@ export default defineConfig({
 	build: {
 		polyfillModulePreload: false,
 	},
-	server: {
-		hmr: false,
-	}
 })

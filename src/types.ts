@@ -5,6 +5,7 @@ export interface Chart {
 	scale: number;
 	nodes: ChartNode[];
 	links: Link[];
+	selected?: Selected | null;
 }
 
 export interface NodeRendering {
@@ -68,7 +69,10 @@ export type HTMLEvent = TypedEvent<HTMLElement>;
 
 export interface Selected {
 	type: "node" | "link";
-	data: Link | ChartNode;
+	data: {
+		uuid: string;
+		readonly?: boolean;
+	};
 }
 
 export interface Position {

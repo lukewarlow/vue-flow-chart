@@ -3,10 +3,10 @@
 		@pointerdown="pointerDown"
 		:id="`link-${link.uuid}`"
 		class="connection"
-		:class="{'in-progress': inProgress, 'selected': selected?.data?.uuid === link.uuid}"
+		:class="{'in-progress': inProgress, 'selected': chart.selected?.data?.uuid === link.uuid}"
 	>
 		<path class="main-path" :d="curvature"></path>
-		<path v-show="selected?.data?.uuid === link.uuid" class="selected-path" :d="curvature"></path>
+		<path v-show="chart.selected?.data?.uuid === link.uuid" class="selected-path" :d="curvature"></path>
 	</svg>
 </template>
 
@@ -31,7 +31,7 @@
 			}
 		},
 		setup(props) {
-			const { canvas, chart, selected } = useGlobalState();
+			const { canvas, chart } = useGlobalState();
 
 			const curvature = computed(() => {
 				if (!props.link.start.position || !props.link.end.position) {
@@ -59,17 +59,20 @@
 					return;
 				}
 
-				if (!selected.value && !props.inProgress) {
+				if (!chart.value.selected && !props.inProgress) {
 					event.stopPropagation();
-					selected.value = {
+					chart.value.selected = {
 						type: "link",
-						data: props.link,
+						data: {
+							uuid: props.link.uuid,
+							readonly: props.link.readonly
+						},
 					};
 				}
 			}
 
 			return {
-				selected,
+				chart,
 				curvature,
 				pointerDown,
 			}

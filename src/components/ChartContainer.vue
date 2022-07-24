@@ -1,7 +1,7 @@
 <template>
 	<div
 		ref="canvasRef"
-		class="w-full h-full overflow-auto"
+		class="w-full h-full bg-gray-50 dark:bg-gray-900 overflow-auto cursor-not-allowed chart"
 		@scroll.passive="scroll"
 		@drop="drop"
 		@dragenter.prevent
@@ -25,7 +25,7 @@
 			DraggableCanvas,
 		},
 		setup() {
-			const { chart, canvasRef, canvas, scrollHandlers, selected } = useGlobalState();
+			const { chart, canvasRef, canvas, scrollHandlers } = useGlobalState();
 			const { addToHistory, undoHistory, redoHistory } = useChartHistory();
 
 			function scroll(event: HTMLEvent) {
@@ -67,32 +67,32 @@
 					return;
 				}
 
-				if (selected.value && (event.key === 'Backspace' || event.key === 'Delete')) {
+				if (chart.value.selected && (event.key === 'Backspace' || event.key === 'Delete')) {
 					event.preventDefault();
 
-					if (!selected.value.data.readonly) {
-						if (selected.value.type === 'node') {
-							const nodeIndex = chart.value.nodes.findIndex((n) => n.uuid === selected.value!.data.uuid);
+					if (!chart.value.selected.data.readonly) {
+						if (chart.value.selected.type === 'node') {
+							const nodeIndex = chart.value.nodes.findIndex((n) => n.uuid === chart.value.selected!.data.uuid);
 							chart.value.nodes.splice(nodeIndex, 1);
 
-							const outgoingLinks = chart.value.links.filter((link) => link.start.nodeUuid === selected.value!.data.uuid);
+							const outgoingLinks = chart.value.links.filter((link) => link.start.nodeUuid === chart.value.selected!.data.uuid);
 							outgoingLinks.forEach((link) => {
 								const index = chart.value.links.findIndex((l) => l.uuid === link.uuid);
 								chart.value.links.splice(index, 1);
 							});
 
-							const incomingLinks = chart.value.links.filter((link) => link.end.nodeUuid === selected.value!.data.uuid);
+							const incomingLinks = chart.value.links.filter((link) => link.end.nodeUuid === chart.value.selected!.data.uuid);
 							incomingLinks.forEach((link) => {
 								const index = chart.value.links.findIndex((l) => l.uuid === link.uuid);
 								chart.value.links.splice(index, 1);
 							});
 
-							selected.value = null;
+							chart.value.selected = null;
 							addToHistory();
-						} else if (selected.value.type === 'link') {
-							const linkIndex = chart.value.links.findIndex((l) => l.uuid === selected.value!.data.uuid);
+						} else if (chart.value.selected?.type === 'link') {
+							const linkIndex = chart.value.links.findIndex((l) => l.uuid === chart.value.selected!.data.uuid);
 							chart.value.links.splice(linkIndex, 1);
-							selected.value = null;
+							chart.value.selected = null;
 							addToHistory();
 						}
 					}

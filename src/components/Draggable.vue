@@ -6,8 +6,8 @@
 		@pointerup="pointerUp"
 		@pointermove="pointerMove"
 		@click.stop.prevent
-		class="top-0 left-0 touch-none transform"
-		:class="{'cursor-pointer': !readonly}"
+		class="top-0 left-0 touch-none cursor-move transform"
+		:class="{'cursor-pointer': readonly}"
 	>
 		<slot></slot>
 	</div>
@@ -39,7 +39,7 @@
 		},
 		setup(props, ctx) {
 			const id = crypto.randomUUID();
-			const { selected, canvas, scrollHandlers} = useGlobalState();
+			const { chart, canvas, scrollHandlers} = useGlobalState();
 
 			const draggable = ref<HTMLDivElement>();
 
@@ -65,7 +65,7 @@
 				event.stopPropagation();
 				event.preventDefault();
 
-				selected.value = null;
+				chart.value.selected = null;
 				if (props.readonly) {
 					return;
 				}

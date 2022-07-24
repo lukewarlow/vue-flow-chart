@@ -7,7 +7,7 @@
 		:x="chart.position.x"
 		:y="chart.position.y"
 		:style="{width: `${chart.size.width}px`, height: `${chart.size.height}px`}"
-		class="bg-gray-50 dark:bg-gray-900"
+		class="bg-transparent border border-dashed border-gray-900 dark:border-gray-500"
 	>
 		<template v-if="canvas">
 			<template v-for="node in chart.nodes" :key="node.uuid">

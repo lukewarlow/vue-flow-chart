@@ -5,7 +5,7 @@
 		@click="click"
 		ref="nodeRef"
 		class="node"
-		:class="{'selected': node.uuid === selected?.data?.uuid}"
+		:class="{'selected': node.uuid === chart.selected?.data?.uuid}"
 		:x="node.position.x"
 		:y="node.position.y"
 		:readonly="node.readonly"
@@ -47,7 +47,7 @@
 			},
 		},
 		setup(props) {
-			const { chart, canvas, selected } = useGlobalState();
+			const { chart, canvas } = useGlobalState();
 			const { addToHistory } = useChartHistory();
 
 			const nodeRef = ref<HTMLElement>();
@@ -89,24 +89,21 @@
 			}
 
 			function click(event: PointerEvent) {
-				if (!selected.value) {
+				if (!chart.value.selected) {
 					event.stopPropagation();
-					selected.value = {
+					chart.value.selected = {
 						type: "node",
-						data: props.node,
+						data: {
+							uuid: props.node.uuid,
+							readonly: props.node.readonly,
+						},
 					};
-					window.dispatchEvent(new CustomEvent('node:selected', {
-						cancelable: false,
-						detail: {
-							node: structuredClone(toRaw(props.node))
-						}
-					}));
 				}
 			}
 
 			return {
 				nodeRef,
-				selected,
+				chart,
 				move,
 				moveEnd,
 				click,

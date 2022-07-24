@@ -14,9 +14,13 @@
 </head>
 <body>
 <div class="grid grid-cols-6">
-    <section class="p-1 bg-gray-400 dark:bg-gray-800 dark:text-white" id="sidebar">
+    <section class="p-1 bg-gray-400 dark:bg-gray-800 dark:text-white h-full flex flex-col flex-1" id="sidebar">
         <div id="random-node" class="p-5 cursor-move bg-gray-600 rounded border-gray-400" draggable="true">
             Hey you can drag and drop me
+        </div>
+        <div class="mt-auto flex gap-4 justify-evenly">
+            <button class="p-2 bg-gray-600 rounded" id="zoom-in">Zoom In</button>
+            <button class="p-2 bg-gray-600 rounded" id="zoom-out">Zoom Out</button>
         </div>
     </section>
     <section id="foo" class="col-span-5  max-h-screen overflow-auto">

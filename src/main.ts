@@ -145,10 +145,12 @@ document.querySelector<HTMLElement>('#random-node')!.ondragstart = (e) => {
 			{
 				uuid: crypto.randomUUID(),
 				type: 'input',
+				position: 'top',
 			},
 			{
 				uuid: crypto.randomUUID(),
 				type: 'output',
+				position: 'bottom',
 			}
 		],
 		rendering: {
@@ -167,3 +169,11 @@ watch(() => configProxy.value.selected, (newValue, oldValue) => {
 		document.querySelector('#selected-sidebar-item')?.remove();
 	}
 }, {deep: true})
+
+document.querySelector<HTMLElement>('#zoom-in')!.onclick = (event) => {
+	configProxy.value.scale += 0.1;
+}
+
+document.querySelector<HTMLElement>('#zoom-out')!.onclick = (event) => {
+	configProxy.value.scale -= 0.1;
+}

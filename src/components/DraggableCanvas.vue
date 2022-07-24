@@ -47,21 +47,19 @@
 					const scale = canvas.value.style.getPropertyValue('--tw-scale-x') || 1;
 					const newScale = +scale + amount;
 					if (newScale > 0.3) {
-						// TODO re-enable once the issues have been fixed
-						// chart.value.scale = newScale;
-						// addToHistory();
+						chart.value.scale = newScale;
+						addToHistory();
 					}
 				}
 			}
 
 			function setScale(amount: number) {
-				// TODO re-enable once the issues have been fixed
-				// if (canvas.value) {
-				// 	if (amount >= 0.3) {
-				// 		canvas.value.style.setProperty('--tw-scale-x', amount.toString());
-				// 		canvas.value.style.setProperty('--tw-scale-y', amount.toString());
-				// 	}
-				// }
+				if (canvas.value) {
+					if (amount >= 0.5) {
+						canvas.value.style.setProperty('--tw-scale-x', amount.toString());
+						canvas.value.style.setProperty('--tw-scale-y', amount.toString());
+					}
+				}
 			}
 
 			function wheel(event: WheelEvent) {
@@ -78,8 +76,8 @@
 			}
 
 			function move(data: any) {
-				chart.value.x = data.x;
-				chart.value.y = data.y;
+				chart.value.position.x = data.x;
+				chart.value.position.y = data.y;
 			}
 
 			function moveEnd() {

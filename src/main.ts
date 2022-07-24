@@ -101,8 +101,8 @@ function initialChart(): Chart {
 		},
 		scale: 1,
 		size: {
-			width: 3000,
-			height: 3000,
+			width: 5000,
+			height: 5000,
 		},
 		nodes,
 		links: [

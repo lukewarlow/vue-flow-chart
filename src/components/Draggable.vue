@@ -16,6 +16,7 @@
 <script lang="ts">
 	import {defineComponent, nextTick, onMounted, onUnmounted, reactive, ref, watch} from 'vue';
 	import useGlobalState from '../state/global-state';
+	import {HTMLEvent} from '../types';
 
 	export default defineComponent({
 		name: 'BaseDraggable',
@@ -101,21 +102,11 @@
 						let pointerX = event.clientX;
 						let pointerY = event.clientY;
 
-						// if (props.boundToCanvas.value) {
-						// 	let { left, top } = getBoundingRect(canvas.value, rect, chart.value.zoom);
-						// 	startX = left;
-						// 	startY = top;
-						// 	let { pointerX: pX, pointerY: pY } = getPointerCoordsTwo(canvas.value, event, chart.value.zoom);
-						// 	pointerX = pX;
-						// 	pointerY = pY;
-						// }
-
 						const pointerElXDif = pointer.x - startX;
 						const pointerElYDif = pointer.y - startY;
 
-						// TODO Account for canvas zoom somehow
-						const xChange = pointerX - pointerElXDif - startX;
-						const yChange = pointerY - pointerElYDif - startY;
+						const xChange = (pointerX - pointerElXDif - startX) / (props.boundToCanvas ? chart.value.scale : 1);
+						const yChange = (pointerY - pointerElYDif - startY) / (props.boundToCanvas ? chart.value.scale : 1);
 
 						changePos(draggable.value, xChange, yChange);
 
@@ -134,15 +125,15 @@
 				let yPos = y;
 
 				if (props.boundToCanvas) {
-					// TODO account for zoom
+					// TODO account for zoom a bit better
 					const canvasRect = canvas.value!.getBoundingClientRect();
 					const rect = el.getBoundingClientRect();
 					// 12 is half the size of a port this probably needs accounting for better
-					if ((xPos + rect.width + 12) > canvasRect.width) {
-						xPos = canvasRect.width - (rect.width + 12);
+					if ((xPos + rect.width + 12) > (canvasRect.width / chart.value.scale)) {
+						xPos = (canvasRect.width / chart.value.scale) - (rect.width + 12);
 					}
-					if ((yPos + rect.height + 12) > canvasRect.height) {
-						yPos = canvasRect.height - (rect.height + 12);
+					if ((yPos + rect.height + 12) > (canvasRect.height / chart.value.scale)) {
+						yPos = (canvasRect.height / chart.value.scale) - (rect.height + 12);
 					}
 
 					if (xPos < 12) {
@@ -183,12 +174,12 @@
 				nextTick(() => {
 					changePos(draggable.value!, props.x, props.y);
 
-					scrollHandlers.set(id, (event) => {
+					scrollHandlers.set(id, (event: HTMLEvent) => {
 						// TODO throttle this with requestAnimationFrame
 						if (trackPointer.value && draggable.value) {
-							const yChange = event.target.scrollTop - scrollTop.value;
+							const yChange = (event.target.scrollTop - scrollTop.value) / chart.value.scale;
 							scrollTop.value = event.target.scrollTop;
-							const xChange = event.target.scrollLeft - scrollLeft.value;
+							const xChange = (event.target.scrollLeft - scrollLeft.value) / chart.value.scale;
 							scrollTop.value = event.target.scrollTop;
 							scrollLeft.value = event.target.scrollLeft;
 							changePos(draggable.value, xChange, yChange);

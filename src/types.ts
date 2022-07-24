@@ -1,12 +1,8 @@
-
-
 export interface Chart {
 	id: string;
-	x: number;
-	y: number;
+	position: Position;
+	size: Size;
 	scale: number;
-	width: number;
-	height: number;
 	nodes: ChartNode[];
 	links: Link[];
 }
@@ -23,13 +19,12 @@ export interface NodeDynamicTextRendering extends NodeRendering {
 	dynamicText: (node: ChartNode) => string;
 }
 
-
 export interface ChartNode {
 	uuid: string;
 	ports: Port[];
-	x: number;
-	y: number;
+	position: Position;
 	rendering: NodeStaticTextRendering | NodeDynamicTextRendering;
+	readonly?: boolean;
 	data?: unknown;
 }
 
@@ -40,24 +35,29 @@ export interface Port {
 
 export interface Link {
 	uuid: string;
-	startX?: number;
-	startY?: number;
-	endX?: number;
-	endY?: number;
-	startNodeUuid: string;
-	startPortUuid: string;
-	endNodeUuid: string;
-	endPortUuid: string;
+	readonly?: boolean;
+	start: {
+		position?: Position;
+		nodeUuid: string;
+		portUuid: string;
+	},
+	end: {
+		position?: Position;
+		nodeUuid: string;
+		portUuid: string;
+	},
 }
 
 export interface InProgressLink {
 	uuid: string;
-	startX: number;
-	startY: number;
-	endX: number;
-	endY: number;
-	startNodeUuid: string;
-	startPortUuid: string;
+	start: {
+		position: Position;
+		nodeUuid: string;
+		portUuid: string;
+	},
+	end: {
+		position: Position;
+	},
 }
 
 export type TypedEvent<T> = Omit<Event, 'target'> & {
@@ -69,4 +69,14 @@ export type HTMLEvent = TypedEvent<HTMLElement>;
 export interface Selected {
 	type: "node" | "link";
 	data: Link | ChartNode;
+}
+
+export interface Position {
+	x: number;
+	y: number;
+}
+
+export interface Size {
+	width: number;
+	height: number;
 }

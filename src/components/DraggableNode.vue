@@ -6,16 +6,17 @@
 		ref="nodeRef"
 		class="node"
 		:class="{'selected': node.uuid === selected?.data?.uuid}"
-		:x="node.x"
-		:y="node.y"
+		:x="node.position.x"
+		:y="node.position.y"
+		:readonly="node.readonly"
 	>
 		<div class="flex justify-around">
 			<template v-for="port in node.ports" :key="port.uuid">
 				<default-port
 					:node-uuid="node.uuid"
 					:port="port"
-					:node-x="node.x"
-					:node-y="node.y"
+					:node-x="node.position.x"
+					:node-y="node.position.x"
 				/>
 			</template>
 		</div>
@@ -53,25 +54,33 @@
 
 			function move(data: any) {
 				const node = chart.value.nodes.find((n) => n.uuid === props.node.uuid)!;
-				node.x = data.x;
-				node.y = data.y;
+				node.position.x = data.x;
+				node.position.y = data.y;
 
-				const outgoingLinks = chart.value.links.filter((link) => link.startNodeUuid === props.node.uuid);
+				const outgoingLinks = chart.value.links.filter((link) => link.start.nodeUuid === props.node.uuid);
 				outgoingLinks.forEach((link) => {
-					const portRef = document.querySelector<HTMLElement>(`#port-${link.startPortUuid}`)!;
+					const portRef = document.querySelector<HTMLElement>(`#port-${link.start.portUuid}`)!;
 					const { portX, portY } = getPortCoords(canvas.value!, portRef, chart.value.scale);
 
-					link.startX = portX;
-					link.startY = portY;
+					link.start.position ??= {
+						x: 0,
+						y: 0,
+					}
+					link.start.position.x = portX;
+					link.start.position.y = portY;
 				});
 
-				const incomingLinks = chart.value.links.filter((link) => link.endNodeUuid === props.node.uuid);
+				const incomingLinks = chart.value.links.filter((link) => link.end.nodeUuid === props.node.uuid);
 				incomingLinks.forEach((link) => {
-					const portRef = document.querySelector<HTMLElement>(`#port-${link.endPortUuid}`)!;
+					const portRef = document.querySelector<HTMLElement>(`#port-${link.end.portUuid}`)!;
 					const { portX, portY } = getPortCoords(canvas.value!, portRef, chart.value.scale);
 
-					link.endX = portX;
-					link.endY = portY;
+					link.end.position ??= {
+						x: 0,
+						y: 0,
+					};
+					link.end.position.x = portX;
+					link.end.position.y = portY;
 				});
 			}
 

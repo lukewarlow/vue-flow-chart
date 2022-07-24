@@ -6,7 +6,8 @@
 		@pointerup="pointerUp"
 		@pointermove="pointerMove"
 		@click.stop.prevent
-		class="top-0 left-0 touch-none cursor-move transform"
+		class="top-0 left-0 touch-none transform"
+		:class="{'cursor-pointer': !readonly}"
 	>
 		<slot></slot>
 	</div>
@@ -30,6 +31,10 @@
 			boundToCanvas: {
 				type: Boolean,
 				default: true,
+			},
+			readonly: {
+				type: Boolean,
+				default: false,
 			},
 		},
 		setup(props, ctx) {
@@ -61,6 +66,9 @@
 				event.preventDefault();
 
 				selected.value = null;
+				if (props.readonly) {
+					return;
+				}
 
 				if (draggable.value) {
 					draggable.value.setPointerCapture(event.pointerId);

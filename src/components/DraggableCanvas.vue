@@ -4,9 +4,9 @@
 		@move="move"
 		@moveend="moveEnd"
 		:boundToCanvas="false"
-		:x="chart.x"
-		:y="chart.y"
-		:style="{width: `${chart.width}px`, height: `${chart.height}px`}"
+		:x="chart.position.x"
+		:y="chart.position.y"
+		:style="{width: `${chart.size.width}px`, height: `${chart.size.height}px`}"
 		class="bg-gray-50 dark:bg-gray-900"
 	>
 		<template v-if="canvas">

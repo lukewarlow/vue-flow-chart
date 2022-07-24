@@ -8,6 +8,23 @@ function initialChart(): Chart {
 			ports: [
 				{
 					uuid: crypto.randomUUID(),
+					type: 'output',
+				},
+			],
+			position: {
+				x: 25,
+				y: 25,
+			},
+			readonly: true,
+			rendering: {
+				text: 'Start Node',
+			}
+		},
+		{
+			uuid: crypto.randomUUID(),
+			ports: [
+				{
+					uuid: crypto.randomUUID(),
 					type: 'both',
 				},
 				{
@@ -19,8 +36,10 @@ function initialChart(): Chart {
 					type: 'output',
 				},
 			],
-			x: 993,
-			y: 81,
+			position: {
+				x: 993,
+				y: 81,
+			},
 			rendering: {
 				text: 'Node fee',
 			}
@@ -33,8 +52,10 @@ function initialChart(): Chart {
 					type: 'both',
 				},
 			],
-			x: 447,
-			y: 120,
+			position: {
+				x: 447,
+				y: 120,
+			},
 			rendering: {
 				text: 'Node fi'
 			},
@@ -54,8 +75,10 @@ function initialChart(): Chart {
 					type: 'output',
 				},
 			],
-			x: 313,
-			y: 422,
+			position: {
+				x: 313,
+				y: 422,
+			},
 			rendering: {
 				text: 'Node fo',
 			}
@@ -64,19 +87,28 @@ function initialChart(): Chart {
 
 	return {
 		id: crypto.randomUUID(),
-		x: 0,
-		y: 0,
+		position: {
+			x: 0,
+			y: 0,
+		},
 		scale: 1,
-		width: 3000,
-		height: 3000,
+		size: {
+			width: 3000,
+			height: 3000,
+		},
 		nodes,
 		links: [
 			{
 				uuid: crypto.randomUUID(),
-				startNodeUuid: nodes[0].uuid,
-				startPortUuid: nodes[0].ports[0].uuid,
-				endNodeUuid: nodes[1].uuid,
-				endPortUuid: nodes[1].ports[0].uuid,
+				readonly: true,
+				start: {
+					nodeUuid: nodes[1].uuid,
+					portUuid: nodes[1].ports[0].uuid,
+				},
+				end: {
+					nodeUuid: nodes[2].uuid,
+					portUuid: nodes[2].ports[0].uuid,
+				},
 			}
 		],
 	}

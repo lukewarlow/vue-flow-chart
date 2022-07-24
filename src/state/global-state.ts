@@ -32,11 +32,15 @@ export default function useGlobalState() {
 function emptyChart(): Chart {
 	return {
 		id: crypto.randomUUID(),
-		x: 0,
-		y: 0,
+		position: {
+			x: 0,
+			y: 0,
+		},
 		scale: 1,
-		width: 3000,
-		height: 3000,
+		size: {
+			width: 3000,
+			height: 3000,
+		},
 		nodes: [],
 		links: [],
 	}

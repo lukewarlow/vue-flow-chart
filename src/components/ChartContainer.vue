@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts">
-	import {defineComponent, onMounted, onUnmounted, watch} from 'vue';
+	import {defineComponent, onMounted, onUnmounted} from 'vue';
 	import useGlobalState from '../state/global-state';
 	import {getTransformedCoords} from '../utils/coordinates';
 	import DraggableCanvas from './DraggableCanvas.vue';
@@ -41,8 +41,10 @@
 					const {transformedX, transformedY} = getTransformedCoords(canvas.value!, e.clientX, e.clientY, chart.value.scale);
 
 					const newNode: ChartNode = {
-						x: transformedX,
-						y: transformedY,
+						position: {
+							x: transformedX,
+							y: transformedY,
+						},
 						...newNodePartial
 					}
 
@@ -68,29 +70,31 @@
 				if (selected.value && (event.key === 'Backspace' || event.key === 'Delete')) {
 					event.preventDefault();
 
-					if (selected.value.type === 'node') {
-						const nodeIndex = chart.value.nodes.findIndex((n) => n.uuid === selected.value!.data.uuid);
-						chart.value.nodes.splice(nodeIndex, 1);
-						selected.value = null;
+					if (!selected.value.data.readonly) {
+						if (selected.value.type === 'node') {
+							const nodeIndex = chart.value.nodes.findIndex((n) => n.uuid === selected.value!.data.uuid);
+							chart.value.nodes.splice(nodeIndex, 1);
 
-						const outgoingLinks = chart.value.links.filter((link) => link.startNodeUuid === selected.value!.data.uuid);
-						outgoingLinks.forEach((link) => {
-							const index = chart.value.links.findIndex((l) => l.uuid === link.uuid);
-							chart.value.links.splice(index, 1);
-						});
+							const outgoingLinks = chart.value.links.filter((link) => link.start.nodeUuid === selected.value!.data.uuid);
+							outgoingLinks.forEach((link) => {
+								const index = chart.value.links.findIndex((l) => l.uuid === link.uuid);
+								chart.value.links.splice(index, 1);
+							});
 
-						const incomingLinks = chart.value.links.filter((link) => link.endNodeUuid === selected.value!.data.uuid);
-						incomingLinks.forEach((link) => {
-							const index = chart.value.links.findIndex((l) => l.uuid === link.uuid);
-							chart.value.links.splice(index, 1);
-						});
+							const incomingLinks = chart.value.links.filter((link) => link.end.nodeUuid === selected.value!.data.uuid);
+							incomingLinks.forEach((link) => {
+								const index = chart.value.links.findIndex((l) => l.uuid === link.uuid);
+								chart.value.links.splice(index, 1);
+							});
 
-						addToHistory();
-					} else if (selected.value.type === 'link') {
-						const linkIndex = chart.value.links.findIndex((l) => l.uuid === selected.value!.data.uuid);
-						chart.value.links.splice(linkIndex, 1);
-						selected.value = null;
-						addToHistory();
+							selected.value = null;
+							addToHistory();
+						} else if (selected.value.type === 'link') {
+							const linkIndex = chart.value.links.findIndex((l) => l.uuid === selected.value!.data.uuid);
+							chart.value.links.splice(linkIndex, 1);
+							selected.value = null;
+							addToHistory();
+						}
 					}
 				}
 			}

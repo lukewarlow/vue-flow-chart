@@ -6,7 +6,7 @@
 		:class="{'in-progress': inProgress, 'selected': selected?.data?.uuid === link.uuid}"
 	>
 		<path class="main-path" :d="curvature"></path>
-		<path v-if="selected?.data?.uuid === link.uuid" class="selected-path" :d="curvature"></path>
+		<path v-show="selected?.data?.uuid === link.uuid" class="selected-path" :d="curvature"></path>
 	</svg>
 </template>
 
@@ -32,22 +32,25 @@
 		},
 		setup(props) {
 			const { canvas, chart, selected } = useGlobalState();
-			const { addToHistory } = useChartHistory();
 
 			const curvature = computed(() => {
-				if (!props.link.startX) {
-					const startPort = document.querySelector<HTMLElement>(`#port-${props.link.startPortUuid}`)!;
-					const endPort = document.querySelector<HTMLElement>(`#port-${props.link.endPortUuid}`)!;
+				if (!props.link.start.position || !props.link.end.position) {
+					const startPort = document.querySelector<HTMLElement>(`#port-${props.link.start.portUuid}`)!;
+					const endPort = document.querySelector<HTMLElement>(`#port-${props.link.end.portUuid}`)!;
 
-					const { portX: startX, portY: startY } = getPortCoords(canvas.value!, startPort!, chart.value.scale);
-					const { portX: endX, portY: endY } = getPortCoords(canvas.value!, endPort!, chart.value.scale);
+					const { portX: startX, portY: startY } = getPortCoords(canvas.value!, startPort, chart.value.scale);
+					const { portX: endX, portY: endY } = getPortCoords(canvas.value!, endPort, chart.value.scale);
 
-					props.link.startX = startX;
-					props.link.startY = startY;
-					props.link.endX = endX;
-					props.link.endY = endY;
+					props.link.start.position = {
+						x: startX,
+						y: startY,
+					};
+					props.link.end.position = {
+						x: endX,
+						y: endY,
+					};
 				}
-				return createCurvature(props.link.startX, props.link.startY!, props.link.endX!, props.link.endY!, 0.5);
+				return createCurvature(props.link.start.position.x, props.link.start.position.y, props.link.end.position.x, props.link.end.position.y, 0.5);
 			});
 
 			// Click doesn't work here for some reason

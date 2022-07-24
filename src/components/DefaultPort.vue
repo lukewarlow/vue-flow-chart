@@ -58,13 +58,18 @@
 			function pointerOver(event: PointerEvent) {
 				event.stopPropagation();
 				if (!trackPointer.value) {
-					if (inProgressLink.value && inProgressLink.value.startNodeUuid !== props.nodeUuid && ['output', 'both'].includes(props.port.type)) {
+					// TODO customisable link validation
+					if (inProgressLink.value && inProgressLink.value.start.nodeUuid !== props.nodeUuid && ['input', 'both'].includes(props.port.type)) {
 						chart.value.links.push({
 							uuid: inProgressLink.value.uuid,
-							startPortUuid: inProgressLink.value.startPortUuid,
-							startNodeUuid: inProgressLink.value.startNodeUuid,
-							endPortUuid: props.port.uuid,
-							endNodeUuid: props.nodeUuid,
+							start: {
+								portUuid: inProgressLink.value.start.portUuid,
+								nodeUuid: inProgressLink.value.start.nodeUuid,
+							},
+							end: {
+								portUuid: props.port.uuid,
+								nodeUuid: props.nodeUuid,
+							},
 						});
 
 						inProgressLink.value = null;
@@ -93,7 +98,7 @@
 					clearTimeout(timeoutId);
 				}
 
-				if (portRef.value && ['input', 'both'].includes(props.port.type)) {
+				if (portRef.value && ['output', 'both'].includes(props.port.type)) {
 					trackPointer.value = true;
 					portRef.value.setPointerCapture(event.pointerId);
 					pointer.x = event.clientX;
@@ -103,12 +108,20 @@
 
 					inProgressLink.value = {
 						uuid: crypto.randomUUID(),
-						startX: portX,
-						startY: portY,
-						endX: portX,
-						endY: portY,
-						startPortUuid: props.port.uuid,
-						startNodeUuid: props.nodeUuid,
+						start: {
+							position: {
+								x: portX,
+								y: portY,
+							},
+							portUuid: props.port.uuid,
+							nodeUuid: props.nodeUuid,
+						},
+						end: {
+							position: {
+								x: portX,
+								y: portY,
+							},
+						},
 					};
 				}
 			}
@@ -140,10 +153,10 @@
 					const { portX, portY } = getPortCoords(canvas.value!, portRef.value, chart.value.scale);
 					const { pointerX, pointerY } = getPointerCoords(canvas.value!, event, chart.value.scale);
 
-					inProgressLink.value.startX = portX;
-					inProgressLink.value.startY = portY;
-					inProgressLink.value.endX = pointerX;
-					inProgressLink.value.endY = pointerY;
+					inProgressLink.value.start.position.x = portX;
+					inProgressLink.value.start.position.y = portY;
+					inProgressLink.value.end.position.x = pointerX;
+					inProgressLink.value.end.position.y = pointerY;
 				}
 			}
 

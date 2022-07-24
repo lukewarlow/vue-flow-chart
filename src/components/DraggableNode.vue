@@ -45,7 +45,7 @@
 				required: true
 			},
 		},
-		setup(props, ctx) {
+		setup(props) {
 			const { chart, canvas, selected } = useGlobalState();
 			const { addToHistory } = useChartHistory();
 
@@ -86,7 +86,6 @@
 						type: "node",
 						data: props.node,
 					};
-					window.addEventListener('keydown', keyDownHandler);
 					window.dispatchEvent(new CustomEvent('node:selected', {
 						cancelable: false,
 						detail: {
@@ -95,39 +94,6 @@
 					}));
 				}
 			}
-
-			watch(selected, (newValue) => {
-				if (newValue === null) {
-					window.removeEventListener('keydown', keyDownHandler);
-				}
-			});
-
-			function keyDownHandler(event: KeyboardEvent) {
-				if ((event.key === 'Delete' || event.key === 'Backspace') && selected.value?.type === "node") {
-					event.preventDefault();
-					event.stopPropagation();
-					const index = chart.value.nodes.findIndex((n) => n.uuid === selected.value!.data.uuid);
-					chart.value.nodes.splice(index, 1);
-					selected.value = null;
-
-					const outgoingLinks = chart.value.links.filter((link) => link.startNodeUuid === props.node.uuid);
-					outgoingLinks.forEach((link) => {
-						const index = chart.value.links.findIndex((l) => l.uuid === link.uuid);
-						chart.value.links.splice(index, 1);
-					});
-
-					const incomingLinks = chart.value.links.filter((link) => link.endNodeUuid === props.node.uuid);
-					incomingLinks.forEach((link) => {
-						const index = chart.value.links.findIndex((l) => l.uuid === link.uuid);
-						chart.value.links.splice(index, 1);
-					});
-					addToHistory();
-				}
-			}
-
-			onUnmounted(() => {
-				window.removeEventListener('keydown', keyDownHandler);
-			});
 
 			return {
 				nodeRef,

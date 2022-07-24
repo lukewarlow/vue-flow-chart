@@ -1,7 +1,7 @@
 import useGlobalState from "./state/global-state";
 import {createApp, Ref} from 'vue';
 import {Chart} from './types';
-import DraggableCanvas from './components/DraggableCanvas.vue';
+import ChartContainer from './components/ChartContainer.vue';
 import './assets/styles/index.css';
 import {useChartHistory} from './composables/use-chart-history';
 
@@ -20,7 +20,7 @@ export function createChart(definition: Chart, options?: ChartOptions): CreateCh
 		rootElement: document.body,
 	};
 
-	const app = createApp(DraggableCanvas);
+	const app = createApp(ChartContainer);
 	chart.value = definition;
 	addToHistory();
 	app.mount(options.rootElement!);

@@ -1,33 +1,24 @@
 <template>
-	<div
-		ref="canvasRef"
-		class="w-full h-full overflow-auto"
-		@scroll.passive="scroll"
-		@drop="drop"
-		@dragenter.prevent
-		@dragover.prevent
+	<draggable
+		@wheel="wheel"
+		@move="move"
+		@moveend="moveEnd"
+		:boundToCanvas="false"
+		:x="chart.x"
+		:y="chart.y"
+		:style="{width: `${chart.width}px`, height: `${chart.height}px`}"
+		class="bg-gray-50 dark:bg-gray-900"
 	>
-		<draggable
-			@wheel="wheel"
-			@move="move"
-			@moveend="moveEnd"
-			:boundToCanvas="false"
-			:x="chart.x"
-			:y="chart.y"
-			:style="{width: `${chart.width}px`, height: `${chart.height}px`}"
-			class="bg-gray-50 dark:bg-gray-900"
-		>
-			<template v-if="canvas">
-				<template v-for="node in chart.nodes" :key="node.uuid">
-					<draggable-node :node="node" />
-				</template>
-				<template v-for="link in chart.links" :key="link.uuid">
-					<default-link :link="link" />
-				</template>
-				<default-link :link="inProgressLink" :in-progress="true" v-if="inProgressLink" />
+		<template v-if="canvas">
+			<template v-for="node in chart.nodes" :key="node.uuid">
+				<draggable-node :node="node" />
 			</template>
-		</draggable>
-	</div>
+			<template v-for="link in chart.links" :key="link.uuid">
+				<default-link :link="link" />
+			</template>
+			<default-link :link="inProgressLink" :in-progress="true" v-if="inProgressLink" />
+		</template>
+	</draggable>
 </template>
 
 <script lang="ts">
@@ -47,9 +38,9 @@
 			Draggable,
 			DraggableNode,
 		},
-		setup(props, ctx) {
-			const { chart, canvasRef, canvas, scrollHandlers, inProgressLink } = useGlobalState();
-			const { addToHistory, undoHistory, redoHistory } = useChartHistory();
+		setup() {
+			const { chart, canvas, inProgressLink } = useGlobalState();
+			const { addToHistory } = useChartHistory();
 
 			function zoom(amount: number) {
 				if (canvas.value) {
@@ -86,12 +77,6 @@
 				}
 			}
 
-			function scroll(event: HTMLEvent) {
-				Array.from(scrollHandlers.values()).forEach((handler) => {
-					handler(event);
-				});
-			}
-
 			function move(data: any) {
 				chart.value.x = data.x;
 				chart.value.y = data.y;
@@ -99,38 +84,6 @@
 
 			function moveEnd() {
 				addToHistory();
-			}
-
-			function drop(e: DragEvent) {
-				if (canvasRef.value) {
-					const newNodePartial = JSON.parse(e.dataTransfer!.getData("application/json"));
-
-					const {transformedX, transformedY} = getTransformedCoords(canvas.value!, e.clientX, e.clientY, chart.value.scale);
-
-					const newNode: ChartNode = {
-						x: transformedX,
-						y: transformedY,
-						...newNodePartial
-					}
-
-					chart.value.nodes.push(newNode);
-					addToHistory();
-				}
-			}
-
-			function historyKeydownHandler(event: KeyboardEvent) {
-				const isCmdCtrl = (event.ctrlKey || event.metaKey);
-
-				if (isCmdCtrl && (event.key === 'y' || (event.shiftKey && event.key === 'z'))) {
-					event.preventDefault();
-					redoHistory();
-					return;
-				}
-				if (isCmdCtrl && event.key === 'z') {
-					event.preventDefault();
-					undoHistory();
-					return;
-				}
 			}
 
 			watch(chart, (newValue, oldValue) => {
@@ -141,22 +94,14 @@
 
 			onMounted(() => {
 				setScale(chart.value.scale);
-				window.addEventListener('keydown', historyKeydownHandler);
-			});
-
-			onUnmounted(() => {
-				window.removeEventListener('keydown', historyKeydownHandler);
 			});
 
 			return {
 				inProgressLink,
 				chart,
-				canvasRef,
 				canvas,
 				move,
 				moveEnd,
-				scroll,
-				drop,
 				wheel,
 			}
 		}

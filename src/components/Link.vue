@@ -62,30 +62,8 @@
 						type: "link",
 						data: props.link,
 					};
-					window.addEventListener('keydown', keyDownHandler);
 				}
 			}
-
-			watch(selected, (newValue) => {
-				if (newValue === null) {
-					window.removeEventListener('keydown', keyDownHandler);
-				}
-			});
-
-			function keyDownHandler(event: KeyboardEvent) {
-				if ((event.key === 'Delete' || event.key === 'Backspace') && selected.value?.type === 'link') {
-					event.preventDefault();
-					event.stopPropagation();
-					const linkIndex = chart.value.links.findIndex((l) => l.uuid === selected.value!.data.uuid);
-					chart.value.links.splice(linkIndex, 1);
-					selected.value = null;
-					addToHistory();
-				}
-			}
-
-			onUnmounted(() => {
-				window.removeEventListener('keydown', keyDownHandler);
-			});
 
 			return {
 				selected,
